@@ -91,46 +91,62 @@ export class SQLiteEngine {
       const insertSQL = `INSERT INTO transactions (${columns.join(', ')}) VALUES (${placeholders})`;
       const stmt = this.db.prepare(insertSQL);
 
-      // Insert data in batches for better performance
+      // Insert data in optimized batches for better performance
+      const batchSize = 1000;
+      const totalRows = data.length;
+      console.log(`Inserting ${totalRows} rows in batches of ${batchSize}...`);
+      
       this.db.run('BEGIN TRANSACTION');
       
-      for (const row of data) {
-        const values = columns.map(col => {
-          const value = row[col];
-          const colType = this.columnTypes[col] || 'text';
-          
-          // Handle type conversions
-          if (value === null || value === undefined || value === '') {
-            return null;
-          }
-          
-          switch (colType) {
-            case 'integer':
-              const intVal = parseInt(value);
-              return isNaN(intVal) ? null : intVal;
-            case 'decimal':
-            case 'currency':
-            case 'percentage':
-              const floatVal = parseFloat(value);
-              return isNaN(floatVal) ? null : floatVal;
-            case 'boolean':
-              // Convert to 0/1
-              if (value === '1' || value === 1 || value === true || value === 'true') {
-                return 1;
-              }
-              if (value === '0' || value === 0 || value === false || value === 'false') {
-                return 0;
-              }
-              return null;
-            default:
-              return String(value);
-          }
-        });
+      for (let i = 0; i < totalRows; i += batchSize) {
+        const batch = data.slice(i, i + batchSize);
         
-        stmt.run(values);
+        for (const row of batch) {
+          const values = columns.map(col => {
+            const value = row[col];
+            const colType = this.columnTypes[col] || 'text';
+            
+            // Handle type conversions
+            if (value === null || value === undefined || value === '') {
+              return null;
+            }
+            
+            switch (colType) {
+              case 'integer':
+                const intVal = parseInt(value);
+                return isNaN(intVal) ? null : intVal;
+              case 'decimal':
+              case 'currency':
+              case 'percentage':
+                const floatVal = parseFloat(value);
+                return isNaN(floatVal) ? null : floatVal;
+              case 'boolean':
+                // Convert to 0/1
+                if (value === '1' || value === 1 || value === true || value === 'true') {
+                  return 1;
+                }
+                if (value === '0' || value === 0 || value === false || value === 'false') {
+                  return 0;
+                }
+                return null;
+              default:
+                return String(value);
+            }
+          });
+          
+          stmt.run(values);
+        }
+        
+        // Commit intermediate transactions for better memory management
+        if ((i + batchSize) % 5000 === 0 && i + batchSize < totalRows) {
+          this.db.run('COMMIT');
+          this.db.run('BEGIN TRANSACTION');
+          console.log(`Processed ${i + batchSize}/${totalRows} rows...`);
+        }
       }
       
       this.db.run('COMMIT');
+      console.log(`Successfully inserted ${totalRows} rows into SQLite database`);
       stmt.free();
 
       // Create indexes on commonly queried columns

@@ -35,39 +35,99 @@ export class CSVLoader {
     return result;
   }
 
-  // Load and parse CSV file
-  async loadCSV(url, maxRows = 1000) {
+  // Load and parse CSV file with streaming for large files
+  async loadCSV(url, maxRows = 25000) {
     try {
-      console.log('Loading CSV from:', url);
+      console.log('Loading CSV from:', url, 'max rows:', maxRows);
       const response = await fetch(url);
       console.log('Response status:', response.status);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const text = await response.text();
-      console.log('CSV text length:', text.length);
-      const lines = text.trim().split('\n');
+      // Use streaming reader for large files
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
       
-      if (lines.length === 0) {
-        throw new Error('CSV file is empty');
+      let buffer = '';
+      let headers = null;
+      const data = [];
+      let totalRows = 0;
+      let rowsProcessed = 0;
+      
+      console.log('Starting streaming CSV parse...');
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Process complete lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep incomplete line in buffer
+        
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+          
+          if (!headers) {
+            headers = this.parseCSVLine(line);
+            console.log('Headers found:', headers.length, 'columns');
+            continue;
+          }
+          
+          totalRows++;
+          
+          // Only process rows within our limit
+          if (rowsProcessed < maxRows) {
+            const values = this.parseCSVLine(line);
+            const row = {};
+            headers.forEach((header, index) => {
+              row[header] = values[index] || '';
+            });
+            data.push(row);
+            rowsProcessed++;
+          }
+          
+          // Progress logging and early exit option for large files
+          if (totalRows % 10000 === 0) {
+            console.log(`Processed ${totalRows} rows, collected ${rowsProcessed} rows`);
+          }
+          
+          // Early exit for very large files to save memory (optional optimization)
+          if (totalRows > 1000000 && rowsProcessed >= maxRows) {
+            console.log(`Early exit: collected ${rowsProcessed} rows, estimated total > ${totalRows}`);
+            reader.cancel();
+            break;
+          }
+        }
       }
       
-      const headers = this.parseCSVLine(lines[0]);
-      const data = lines.slice(1, maxRows + 1).map(line => {
-        const values = this.parseCSVLine(line);
+      // Process any remaining data in buffer
+      if (buffer.trim() && headers && rowsProcessed < maxRows) {
+        totalRows++;
+        const values = this.parseCSVLine(buffer);
         const row = {};
         headers.forEach((header, index) => {
           row[header] = values[index] || '';
         });
-        return row;
-      });
+        data.push(row);
+        rowsProcessed++;
+      }
+      
+      if (!headers || data.length === 0) {
+        throw new Error('CSV file is empty or invalid');
+      }
       
       // Load column types
       const columnTypes = await this.loadColumnTypes();
       
-      return { success: true, data, headers, totalRows: lines.length - 1, columnTypes };
+      console.log(`CSV loaded: ${rowsProcessed} rows processed out of ${totalRows} total rows`);
+      return { success: true, data, headers, totalRows, columnTypes };
+      
     } catch (error) {
+      console.error('CSV loading error:', error);
       return { success: false, error: error.message, data: [], headers: [] };
     }
   }

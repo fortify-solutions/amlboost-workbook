@@ -214,7 +214,7 @@ export function useCSVLoader() {
     const minLoadTime = 1000; // 1 second minimum
     
     try {
-      const result = await csvLoader.loadCSV('./data.csv', 1000);
+      const result = await csvLoader.loadCSV('./data.csv', 25000);
       
       if (result.success) {
         // Update SQLite engine with new data
