@@ -181,10 +181,13 @@ The app includes comprehensive sample investigations demonstrating:
 
 ### Performance Considerations
 
-- **SQLite Scaling**: Client-side processing works well up to ~100K rows
+- **SQLite Scaling**: Client-side processing optimized for up to ~100K rows with streaming parser
+- **CSV Loading**: Streaming CSV reader handles large files efficiently, loads first 25,000 rows by default
 - **Chart Rendering**: Optimize for datasets under 10K points for smooth interaction  
 - **Memory Usage**: Large investigations with many cells may impact browser performance
 - **State Persistence**: LocalStorage has size limits (typically 5-10MB)
+- **Batch Processing**: SQLite insertions use 1000-row batches with progress logging
+- **Large File Handling**: Early exit optimization for files >1M rows to prevent memory overload
 
 ### Error Handling Patterns
 
@@ -302,19 +305,22 @@ npm run preview
 **Common Causes**:
 1. **SQLite WASM Loading Issues**: WASM files not found or incorrect paths
 2. **Missing Data Files**: `data-types.json` or `data.csv` not accessible
-3. **Computed States Auto-execution**: Expensive per-row calculations causing hangs
+3. **Large Dataset Memory Issues**: Files >500MB may cause browser memory issues
+4. **Computed States Auto-execution**: Expensive per-row calculations causing hangs
 
 **Solutions**:
 - Ensure WASM files (`sql-wasm.js`, `sql-wasm.wasm`) exist in `public/` directory
 - Verify `data-types.json` and `data.csv` are in `public/` directory
 - Check file paths use relative paths (`./file`) not absolute (`/file`)
+- For large datasets, ensure file size is reasonable (<200MB for optimal performance)
 - For computed states causing hangs, set `persistent: false` to disable auto-execution
+- Monitor browser console for CSV loading progress and memory usage
 
 **Code Locations to Check**:
 - `src/services/sqliteEngine.js:18` - WASM file loading configuration
-- `src/services/csvLoader.js:7` - data-types.json path
+- `src/services/csvLoader.js:39` - streaming CSV parser with memory optimizations
 - `src/data/sampleInvestigations.js` - persistent states configuration
-- `src/hooks/useCSVLoader.js:141` - auto-execution logic
+- `src/hooks/useCSVLoader.js:217` - CSV loading limits (default 25,000 rows)
 
 ### Cell Deletion Not Working
 
@@ -350,11 +356,16 @@ npm run dev  # Start development server
 **File Structure Requirements**:
 ```
 public/
-├── data.csv              # Transaction data (required)
+├── data.csv              # Transaction data (required, recommended <200MB)
 ├── data-types.json       # Column type definitions
 ├── sql-wasm.js          # SQLite JavaScript wrapper
 ├── sql-wasm.wasm        # SQLite WebAssembly binary
 └── favicon.ico          # Site favicon
+```
+
+**Performance Testing**:
+```bash
+node test-performance.js  # Test CSV loading performance with different row limits
 ```
 
 This file should be updated when significant architectural changes are made to ensure future development assistance remains accurate and efficient.
