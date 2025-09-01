@@ -56,7 +56,7 @@ export function LandingScreen({ onCreateNew, onLoadInvestigation }) {
             </div>
           </div>
           <h1 className="text-6xl fortify-heading font-bold mb-6">
-            RuleTune
+            AMLBoost
           </h1>
           <p className="text-2xl font-medium text-gray-600 mb-4">
             Intelligent Transaction Analysis Platform
@@ -177,7 +177,7 @@ export function LandingScreen({ onCreateNew, onLoadInvestigation }) {
         {/* Footer */}
         <div className="text-center mt-16">
           <div className="inline-flex items-center space-x-2 text-sm text-gray-400">
-            <span>RuleTune v2.0</span>
+            <span>AMLBoost v2.0</span>
             <span>•</span>
             <span>Intelligent Transaction Analysis</span>
           </div>

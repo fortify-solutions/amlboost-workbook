@@ -137,7 +137,8 @@ export function useCSVLoader() {
     
     const executeCellsSequentially = async () => {
       console.log('executeCellsSequentially called');
-      if (state.csvData.length > 0 && !hasAutoExecuted.current) {
+      
+      if (state.csvData.length > 0 && !hasAutoExecuted.current && !isLoading.current) {
         console.log('Starting auto-execution process');
         hasAutoExecuted.current = true;
         

@@ -303,6 +303,18 @@ export function ImprovedChartCell({ cell }) {
                     )}
                   </div>
                   
+                  {/* AI Reasoning - show if chart was configured by AI */}
+                  {cell.aiReasoning && (
+                    <div className="mt-3 p-2 bg-purple-50 border border-purple-200 rounded-md">
+                      <div className="flex items-start space-x-2">
+                        <Icon name="Sparkles" className="w-3 h-3 text-purple-600 mt-0.5" />
+                        <div className="text-xs text-purple-700">
+                          <span className="font-medium">AI Configuration:</span> {cell.aiReasoning}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
                     <div>
                       <span className="font-medium">Data:</span> {config.dataSource === 'csv' ? 'CSV Data' : 'Custom Query'} • 

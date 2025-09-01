@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNotebook } from '../../stores/NotebookContext';
 import { Icon } from '../ui/Icon';
 import { getOpenAIService } from '../../services/openaiService';
+import { CellHeader } from './CellHeader';
 
 export function AICell({ cell }) {
   const { state, dispatch, ActionTypes } = useNotebook();
@@ -116,31 +117,21 @@ export function AICell({ cell }) {
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg bg-white">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1">
-            <Icon name="Brain" className="w-4 h-4 text-orange-500" />
-            <span className="text-sm font-medium text-gray-700">AI Assistant</span>
-          </div>
-          {cell.executed && (
-            <div className="flex items-center space-x-1 text-xs text-green-600">
-              <Icon name="CheckCircle" className="w-3 h-3" />
-              <span>{cell.executionTime}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-orange-600">
-            Context: {state.cells.findIndex(c => c.id === cell.id)} previous cells
-          </span>
-          <button 
-            onClick={clearChat}
-            className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200"
-          >
-            Clear Chat
-          </button>
-        </div>
+    <div className={`border border-gray-200 rounded-lg bg-white ${state.selectedCellId === cell.id ? 'ring-2 ring-blue-500' : ''}`}
+         onClick={() => dispatch({ type: ActionTypes.SET_SELECTED_CELL, payload: cell.id })}>
+      <CellHeader cell={cell} isSelected={state.selectedCellId === cell.id} />
+      
+      {/* AI cell specific action buttons */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-25">
+        <span className="text-xs text-orange-600">
+          Context: {state.cells.findIndex(c => c.id === cell.id)} previous cells
+        </span>
+        <button 
+          onClick={clearChat}
+          className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200"
+        >
+          Clear Chat
+        </button>
       </div>
       
       <div className="p-4 border-b border-gray-200 bg-orange-50">

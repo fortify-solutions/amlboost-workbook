@@ -34,12 +34,14 @@ const initialState = {
         { 
           name: 'user_fraud_risk', 
           description: 'Fraud risk score based on decline patterns', 
-          query: 'SELECT COUNT(*) FROM transactions WHERE user_id = t.user_id AND decline = 1' 
+          query: 'SELECT COUNT(*) FROM transactions WHERE user_id = t.user_id AND decline = 1',
+          persistent: false
         },
         { 
           name: 'merchant_success_rate', 
           description: 'Success rate for merchant transactions', 
-          query: 'SELECT AVG(CASE WHEN outcome = "TN" THEN 1 ELSE 0 END) FROM transactions WHERE merchant_id = t.merchant_id' 
+          query: 'SELECT AVG(CASE WHEN outcome = "TN" THEN 1 ELSE 0 END) FROM transactions WHERE merchant_id = t.merchant_id',
+          persistent: false
         }
       ],
       collapsed: false,

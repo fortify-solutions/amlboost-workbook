@@ -55,7 +55,7 @@ This investigation leverages advanced analytical techniques including:
             condition: '',
             windowDays: 30,
             groupBy: 'user_id',
-            persistent: true
+            persistent: false
           },
           {
             name: 'user_fraud_rate',
@@ -66,7 +66,7 @@ This investigation leverages advanced analytical techniques including:
             condition: 'fraud = 1',
             windowDays: 30,
             groupBy: 'user_id',
-            persistent: true
+            persistent: false
           },
           {
             name: 'merchant_success_rate',
@@ -77,7 +77,7 @@ This investigation leverages advanced analytical techniques including:
             condition: 'decline = 0',
             windowDays: 30,
             groupBy: 'merchant_id',
-            persistent: true
+            persistent: false
           }
         ],
         collapsed: false,
@@ -409,7 +409,7 @@ ORDER BY hour_of_day`,
             condition: '',
             windowDays: 30,
             groupBy: 'user_id',
-            persistent: true
+            persistent: false
           },
           {
             name: 'cross_border_volume',
@@ -420,7 +420,7 @@ ORDER BY hour_of_day`,
             condition: 'merchant_country != "USA"',
             windowDays: 30,
             groupBy: 'user_id',
-            persistent: true
+            persistent: false
           },
           {
             name: 'merchant_country_risk',
@@ -431,7 +431,7 @@ ORDER BY hour_of_day`,
             condition: 'fraud = 1',
             windowDays: 90,
             groupBy: 'merchant_country',
-            persistent: true
+            persistent: false
           }
         ],
         collapsed: false,
@@ -691,7 +691,7 @@ ORDER BY mispricing_risk DESC, avg_amount DESC`,
             condition: 'outcome = "TN"',
             windowDays: 30,
             groupBy: 'merchant_id',
-            persistent: true
+            persistent: false
           },
           {
             name: 'merchant_user_diversity',
@@ -702,7 +702,7 @@ ORDER BY mispricing_risk DESC, avg_amount DESC`,
             condition: '',
             windowDays: 30,
             groupBy: 'merchant_id',
-            persistent: true
+            persistent: false
           },
           {
             name: 'merchant_daily_volume',
@@ -713,7 +713,7 @@ ORDER BY mispricing_risk DESC, avg_amount DESC`,
             condition: '',
             windowDays: 30,
             groupBy: 'merchant_id',
-            persistent: true
+            persistent: false
           }
         ],
         collapsed: false,

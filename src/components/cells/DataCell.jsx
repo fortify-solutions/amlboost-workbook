@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNotebook } from '../../stores/NotebookContext';
 import { Icon } from '../ui/Icon';
+import { CellHeader } from './CellHeader';
 
 // Helper function to format cell values using type information
 function formatCellValue(value, columnName, columnTypes = {}) {
@@ -158,49 +159,27 @@ export function DataCell({ cell, executeCell }) {
   return (
     <div className={`border border-gray-200 rounded-lg bg-white ${state.selectedCellId === cell.id ? 'ring-2 ring-blue-500' : ''}`}
          onClick={() => dispatch({ type: ActionTypes.SET_SELECTED_CELL, payload: cell.id })}>
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1">
-            <Icon name="Database" className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium text-gray-700">{cell.title}</span>
-          </div>
-          {cell.executed ? (
-            <div className="flex items-center space-x-1 text-xs text-green-600">
-              <Icon name="CheckCircle" className="w-3 h-3" />
-              <span>{cell.executionTime}</span>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-1 text-xs text-gray-400">
-              <Icon name="Clock" className="w-3 h-3" />
-              <span>Not executed</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => dispatch({
-              type: ActionTypes.TOGGLE_MODAL,
-              payload: { modal: 'aiAssist', value: { open: true, cellId: cell.id } }
-            })}
-            className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors flex items-center space-x-1"
-          >
-            <Icon name="Sparkles" className="w-3 h-3" />
-            <span>AI</span>
-          </button>
-          <button
-            onClick={() => dispatch({ type: ActionTypes.SET_EDITING_CELL, payload: cell.id })}
-            className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-          >
-            Edit
-          </button>
-          <button 
-            onClick={() => executeCell(cell.id)}
-            className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center space-x-1"
-          >
-            <Icon name="Play" className="w-3 h-3" />
-            <span>Run</span>
-          </button>
-        </div>
+      <CellHeader cell={cell} isSelected={state.selectedCellId === cell.id} />
+      
+      {/* Data cell specific action buttons */}
+      <div className="flex items-center justify-end space-x-2 px-3 py-2 border-b border-gray-100 bg-gray-25">
+        <button
+          onClick={() => dispatch({
+            type: ActionTypes.TOGGLE_MODAL,
+            payload: { modal: 'aiAssist', value: { open: true, cellId: cell.id } }
+          })}
+          className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors flex items-center space-x-1"
+        >
+          <Icon name="Sparkles" className="w-3 h-3" />
+          <span>AI</span>
+        </button>
+        <button 
+          onClick={() => executeCell(cell.id)}
+          className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center space-x-1"
+        >
+          <Icon name="Play" className="w-3 h-3" />
+          <span>Run</span>
+        </button>
       </div>
       
       {!cell.collapsed && (

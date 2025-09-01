@@ -1,6 +1,6 @@
-# RuleTune - Intelligent Transaction Analysis Platform
+# AMLBoost - Intelligent Transaction Analysis Platform
 
-RuleTune is a sophisticated, interactive notebook application designed for Anti-Money Laundering (AML) investigations and transaction analysis. Built with React and Vite, it provides a comprehensive platform for financial crime detection, compliance analysis, and risk assessment.
+AMLBoost is a sophisticated, interactive notebook application designed for Anti-Money Laundering (AML) investigations and transaction analysis. Built with React and Vite, it provides a comprehensive platform for financial crime detection, compliance analysis, and risk assessment.
 
 ## 🚀 Key Features
 
@@ -81,7 +81,7 @@ src/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd v0.9_notebook_structured
+cd workbook-flow
 
 # Install dependencies
 npm install
@@ -139,7 +139,7 @@ user_002,merch_456,2500.75,2024-01-15T11:45:00Z,TN,0,0,BRA,Global Retail Inc,531
 - Document findings with markdown cells
 
 ### 2. **Pre-built Investigation Templates**
-RuleTune includes sophisticated sample investigations:
+AMLBoost includes sophisticated sample investigations:
 
 - **Advanced Fraud Detection**: ML-enhanced pattern recognition
 - **Cross-Border Network Analysis**: Geographic flow monitoring  
@@ -265,17 +265,33 @@ npm run build
 
 ### Common Issues
 
-1. **Data Loading Problems**
+1. **Application Hangs or Infinite Loading**
+   - **Symptoms**: App stuck on "Loading transaction data..." or flickering screen
+   - **Causes**: SQLite WASM files not loading, missing data files, or expensive computed states
+   - **Solutions**: 
+     - Verify all required files exist in `public/` directory:
+       - `data.csv` (transaction data)
+       - `data-types.json` (column type definitions)
+       - `sql-wasm.js` and `sql-wasm.wasm` (SQLite engine)
+     - Check browser console for 404 errors
+     - For computed states causing hangs, set `persistent: false` in sample investigations
+
+2. **Data Loading Problems**
    - Ensure `data.csv` is in `public/` directory
    - Verify CSV format matches expected structure
    - Check browser console for parsing errors
 
-2. **Performance Issues**
+3. **Cell Deletion Not Working**
+   - **Symptoms**: Three-dot menu (⋮) not visible in cell headers
+   - **Solutions**: Verify Icon component fallback works for MoreVertical icon
+   - All cells should display a three-dot menu in the header for cell actions
+
+4. **Performance Issues**
    - Large datasets (>100K rows) may slow processing
    - Consider data sampling for initial analysis
    - Chrome DevTools can help identify bottlenecks
 
-3. **Chart Rendering Problems** 
+5. **Chart Rendering Problems** 
    - Verify data types match chart requirements
    - Check ECharts documentation for configuration options
    - Ensure numeric fields are properly typed

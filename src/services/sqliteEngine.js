@@ -15,7 +15,13 @@ export class SQLiteEngine {
     try {
       // Initialize SQL.js with the WASM file
       this.SQL = await initSqlJs({
-        locateFile: file => `/sql-wasm.${file.split('.').pop()}`
+        locateFile: file => {
+          console.log('SQLite requesting file:', file);
+          if (file.endsWith('.wasm')) {
+            return './sql-wasm.wasm';
+          }
+          return './sql-wasm.js';
+        }
       });
       
       // Create a new database

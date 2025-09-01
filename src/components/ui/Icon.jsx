@@ -38,7 +38,7 @@ const iconMap = {
   'Plus': Plus,
   'ChevronDown': NavArrowDown,
   'ChevronUp': NavArrowUp,
-  'MoreVertical': MoreHoriz,
+  // 'MoreVertical': MoreHoriz, // Commented out to use vertical fallback ⋮
   
   // Data & Charts
   'BarChart3': CandlestickChart,

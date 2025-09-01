@@ -1,10 +1,10 @@
-# Claude.md - RuleTune Development Guide
+# Claude.md - AMLBoost Development Guide
 
-This file provides essential context for LLMs working on the RuleTune project to ensure efficient and accurate development assistance.
+This file provides essential context for LLMs working on the AMLBoost project to ensure efficient and accurate development assistance.
 
 ## Project Overview
 
-**RuleTune** is a sophisticated React-based notebook application designed for Anti-Money Laundering (AML) investigations and financial transaction analysis. It provides a Jupyter-style interface with specialized cells for data analysis, visualization, and AI-powered insights.
+**AMLBoost** is a sophisticated React-based notebook application designed for Anti-Money Laundering (AML) investigations and financial transaction analysis. It provides a Jupyter-style interface with specialized cells for data analysis, visualization, and AI-powered insights.
 
 ### Key Characteristics
 - **Domain**: Financial crime detection, AML compliance, fraud investigation
@@ -292,5 +292,69 @@ npm run preview
 3. **`src/components/NotebookContainer.jsx`** - Main notebook interface
 4. **`src/services/sqliteEngine.js`** - Data processing engine
 5. **`src/data/sampleInvestigations.js`** - Sample AML investigations
+
+## Common Issues & Troubleshooting
+
+### Application Hangs or Infinite Loading
+
+**Symptoms**: App gets stuck on "Loading transaction data..." or shows flickering screen
+
+**Common Causes**:
+1. **SQLite WASM Loading Issues**: WASM files not found or incorrect paths
+2. **Missing Data Files**: `data-types.json` or `data.csv` not accessible
+3. **Computed States Auto-execution**: Expensive per-row calculations causing hangs
+
+**Solutions**:
+- Ensure WASM files (`sql-wasm.js`, `sql-wasm.wasm`) exist in `public/` directory
+- Verify `data-types.json` and `data.csv` are in `public/` directory
+- Check file paths use relative paths (`./file`) not absolute (`/file`)
+- For computed states causing hangs, set `persistent: false` to disable auto-execution
+
+**Code Locations to Check**:
+- `src/services/sqliteEngine.js:18` - WASM file loading configuration
+- `src/services/csvLoader.js:7` - data-types.json path
+- `src/data/sampleInvestigations.js` - persistent states configuration
+- `src/hooks/useCSVLoader.js:141` - auto-execution logic
+
+### Cell Deletion Not Working
+
+**Symptoms**: Three-dot menu not visible or delete option missing
+
+**Common Causes**:
+- Icon mapping issues with vertical three-dot menu icon
+- CellHeader component not properly rendered
+
+**Solutions**:
+- Verify Icon component fallback works for `MoreVertical` (should show ⋮)
+- Check CellHeader is included in all cell renderers
+- Ensure delete functionality exists in dropdown menu
+
+### Data Loading Performance
+
+**Symptoms**: Slow loading with large datasets
+
+**Optimizations**:
+- CSV loading limited to 1000 rows by default (`maxRows` parameter)
+- SQLite indexing on commonly queried columns
+- Batch processing for computed states (100 rows per batch)
+- Client-side processing scales to ~100K rows effectively
+
+### Development Setup Issues
+
+**Prerequisites**:
+```bash
+npm install  # Install dependencies first
+npm run dev  # Start development server
+```
+
+**File Structure Requirements**:
+```
+public/
+├── data.csv              # Transaction data (required)
+├── data-types.json       # Column type definitions
+├── sql-wasm.js          # SQLite JavaScript wrapper
+├── sql-wasm.wasm        # SQLite WebAssembly binary
+└── favicon.ico          # Site favicon
+```
 
 This file should be updated when significant architectural changes are made to ensure future development assistance remains accurate and efficient.

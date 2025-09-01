@@ -4,7 +4,7 @@ export class CSVLoader {
   // Load column types from configuration file
   async loadColumnTypes() {
     try {
-      const response = await fetch('/data-types.json');
+      const response = await fetch('./data-types.json');
       if (response.ok) {
         const config = await response.json();
         return config.columnTypes || {};
