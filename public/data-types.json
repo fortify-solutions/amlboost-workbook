@@ -1,0 +1,50 @@
+{
+  "columnTypes": {
+    "user_id": "id",
+    "txn_date_time": "datetime",
+    "transaction_id": "id", 
+    "action": "category",
+    "type": "category",
+    "orig_currency": "category",
+    "charged_currency": "category",
+    "charged_amount": "currency",
+    "decline_reason": "category",
+    "merchant_id": "id",
+    "terminal_id": "id",
+    "merchant_city": "category",
+    "mcc": "category",
+    "merchant_country": "category",
+    "merchant_name": "text",
+    "three_ds": "boolean",
+    "_wallet": "category",
+    "processor_code": "category",
+    "is_recurring": "boolean",
+    "fraud": "category",
+    "decline": "category",
+    "outcome": "category"
+  },
+  "typeOptions": {
+    "currency": {
+      "defaultCurrency": "USD"
+    },
+    "decimal": {
+      "defaultPrecision": 2
+    },
+    "percentage": {
+      "displayAsPercent": true
+    }
+  },
+  "availableTypes": [
+    "text",
+    "integer", 
+    "decimal",
+    "currency",
+    "percentage",
+    "date",
+    "datetime",
+    "boolean",
+    "id",
+    "category"
+  ],
+  "description": "Column type definitions for data.csv. Edit this file to customize how columns are displayed and sorted. Available types: text, integer, decimal, currency, percentage, date, datetime, boolean, id, category."
+}
