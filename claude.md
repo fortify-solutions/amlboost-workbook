@@ -120,6 +120,11 @@ src/data/
 - **Functionality**: Define SQL expressions that create new calculated columns
 - **Persistence**: Can persist computed states back to the dataset
 - **Use Cases**: Risk scores, user velocity metrics, geographic diversity
+- **AI Integration**: 
+  - AI button in cell header for one-click access to AI-powered state generation
+  - Opens Add State Modal with AI Assistant pre-activated
+  - Natural language descriptions automatically converted to SQL expressions
+  - Individual computed states also have AI buttons for analysis assistance
 
 ## Data Model & Expectations
 
@@ -168,6 +173,7 @@ The app includes comprehensive sample investigations demonstrating:
 2. Add to cell renderer switch in `NotebookContainer.jsx`
 3. Add creation option in `AddCellMenu.jsx`
 4. Update context reducer for cell-specific actions
+5. **Consider adding AI button for consistency with other cell types**
 
 #### Extending SQL Functionality
 1. Modify `sqliteEngine.js` to add custom SQL functions
@@ -242,12 +248,22 @@ The app includes comprehensive sample investigations demonstrating:
 - AI cells provide interface for conversation-style analysis
 - OpenAI service is placeholder - requires API key configuration
 - Messages stored in cell state for persistence
+- **AI buttons available across all cell types for consistent user experience**
 
 ### Integration Points
 - `src/services/openaiService.js` - Main integration point
 - AI cells can access investigation data for context
 - Consider privacy/security for sensitive financial data
 - Rate limiting and error handling for API calls
+
+### AI Button Locations
+- **DataCell**: AI button in cell actions (purple, with Sparkles icon)
+- **ChartCell**: AI button in cell actions for chart configuration assistance
+- **StateCell**: 
+  - AI button in cell header for direct access to state generation
+  - Individual AI buttons on each computed state for analysis
+  - One-click access opens Add State Modal with AI Assistant pre-activated
+- **AICell**: Native AI chat interface
 
 ## Contributing Guidelines
 
