@@ -328,15 +328,30 @@ function StateCell({ cell }) {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-gray-900">Computed States</h4>
-            <button 
-              onClick={() => dispatch({
-                type: ActionTypes.TOGGLE_MODAL,
-                payload: { modal: 'addState', value: { open: true, cellId: cell.id } }
-              })}
-              className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200"
-            >
-              + Add State
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => {
+                  // First open the add state modal
+                  dispatch({
+                    type: ActionTypes.TOGGLE_MODAL,
+                    payload: { modal: 'addState', value: { open: true, cellId: cell.id, showAIHelper: true } }
+                  });
+                }}
+                className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors flex items-center space-x-1"
+              >
+                <Icon name="Sparkles" className="w-3 h-3" />
+                <span>AI</span>
+              </button>
+              <button 
+                onClick={() => dispatch({
+                  type: ActionTypes.TOGGLE_MODAL,
+                  payload: { modal: 'addState', value: { open: true, cellId: cell.id } }
+                })}
+                className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200"
+              >
+                + Add State
+              </button>
+            </div>
           </div>
         </div>
         

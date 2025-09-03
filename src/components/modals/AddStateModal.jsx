@@ -20,6 +20,13 @@ export function AddStateModal() {
   const [aiPrompt, setAiPrompt] = useState('');
   const [isProcessingAI, setIsProcessingAI] = useState(false);
 
+  // Auto-show AI helper if requested from the AI button
+  React.useEffect(() => {
+    if (addState.open && addState.showAIHelper) {
+      setShowAIHelper(true);
+    }
+  }, [addState.open, addState.showAIHelper]);
+
   const handleClose = () => {
     dispatch({
       type: ActionTypes.TOGGLE_MODAL,
