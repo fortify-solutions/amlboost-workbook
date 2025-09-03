@@ -19,8 +19,8 @@
     "_wallet": "category",
     "processor_code": "category",
     "is_recurring": "boolean",
-    "fraud": "boolean",
-    "decline": "boolean",
+    "fraud": "category",
+    "decline": "category",
     "outcome": "category"
   },
   "typeOptions": {
