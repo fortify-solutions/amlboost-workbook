@@ -353,6 +353,24 @@ function StateCell({ cell }) {
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => dispatch({
+                      type: ActionTypes.TOGGLE_MODAL,
+                      payload: { 
+                        modal: 'aiAssist', 
+                        value: { 
+                          open: true, 
+                          cellId: cell.id, 
+                          cellType: 'state',
+                          context: `Computed State: ${state.name} - ${state.description || ''}\nQuery: ${state.query}`
+                        } 
+                      }
+                    })}
+                    className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors flex items-center space-x-1"
+                  >
+                    <Icon name="Sparkles" className="w-3 h-3" />
+                    <span>AI</span>
+                  </button>
                   <button 
                     onClick={() => dispatch({
                       type: ActionTypes.TOGGLE_MODAL,
