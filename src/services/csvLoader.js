@@ -36,7 +36,7 @@ export class CSVLoader {
   }
 
   // Load and parse CSV file with streaming for large files
-  async loadCSV(url, maxRows = 25000) {
+  async loadCSV(url, maxRows = 10000) {
     try {
       console.log('Loading CSV from:', url, 'max rows:', maxRows);
       const response = await fetch(url);
