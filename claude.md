@@ -188,7 +188,7 @@ The app includes comprehensive sample investigations demonstrating:
 ### Performance Considerations
 
 - **SQLite Scaling**: Client-side processing optimized for up to ~100K rows with streaming parser
-- **CSV Loading**: Streaming CSV reader handles large files efficiently, loads first 25,000 rows by default
+- **CSV Loading**: Streaming CSV reader handles large files efficiently, loads first 10,000 rows by default
 - **Chart Rendering**: Optimize for datasets under 10K points for smooth interaction  
 - **Memory Usage**: Large investigations with many cells may impact browser performance
 - **State Persistence**: LocalStorage has size limits (typically 5-10MB)
@@ -336,7 +336,7 @@ npm run preview
 - `src/services/sqliteEngine.js:18` - WASM file loading configuration
 - `src/services/csvLoader.js:39` - streaming CSV parser with memory optimizations
 - `src/data/sampleInvestigations.js` - persistent states configuration
-- `src/hooks/useCSVLoader.js:217` - CSV loading limits (default 25,000 rows)
+- `src/hooks/useCSVLoader.js:217` - CSV loading limits (default 10,000 rows)
 
 ### Cell Deletion Not Working
 
@@ -356,7 +356,7 @@ npm run preview
 **Symptoms**: Slow loading with large datasets
 
 **Optimizations**:
-- CSV loading limited to 1000 rows by default (`maxRows` parameter)
+- CSV loading limited to 10,000 rows by default (`maxRows` parameter)
 - SQLite indexing on commonly queried columns
 - Batch processing for computed states (100 rows per batch)
 - Client-side processing scales to ~100K rows effectively

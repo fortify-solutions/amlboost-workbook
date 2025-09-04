@@ -8,7 +8,17 @@
       "Bash(npm run build:*)",
       "Bash(curl:*)",
       "Bash(git add:*)",
-      "Read(/Users/tom/Documents/**)"
+      "Read(/Users/tom/Documents/**)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(gh api:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh run list:*)",
+      "WebFetch(domain:fortify-solutions.github.io)",
+      "Bash(gh run view:*)",
+      "Bash(npm run preview:*)",
+      "Bash(lsof:*)"
     ],
     "deny": [],
     "ask": []
