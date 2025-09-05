@@ -18,7 +18,18 @@
       "WebFetch(domain:fortify-solutions.github.io)",
       "Bash(gh run view:*)",
       "Bash(npm run preview:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(find:*)",
+      "Bash(brew services:*)",
+      "Bash(psql:*)",
+      "Bash(brew install:*)",
+      "Bash(export:*)",
+      "Bash(createdb:*)",
+      "Bash(createuser:*)",
+      "Bash(npm run migrate:*)",
+      "Bash(npm run seed-latam:*)",
+      "Bash(npm run seed-sample:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []

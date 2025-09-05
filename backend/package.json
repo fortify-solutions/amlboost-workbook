@@ -1,0 +1,30 @@
+{
+  "name": "amlboost-backend",
+  "version": "1.0.0",
+  "description": "AMLBoost scalable backend for transaction analysis",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js",
+    "seed-latam": "node scripts/seed-latam.js",
+    "seed-sample": "node scripts/seed-sample.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "compression": "^1.7.4",
+    "pg": "^8.13.1",
+    "csv-parser": "^3.0.0",
+    "multer": "^1.4.5-lts.1",
+    "redis": "^4.7.0",
+    "dotenv": "^16.4.7",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

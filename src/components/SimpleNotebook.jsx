@@ -114,9 +114,6 @@ export function SimpleNotebook() {
           <h1 className="text-xl font-semibold text-gray-900">
             Transaction Analysis Notebook v2.0 (Simple)
           </h1>
-          <div className="text-sm text-gray-500">
-            {csvData.length} transactions loaded
-          </div>
         </div>
       </div>
 

@@ -33,9 +33,6 @@ export function NotebookContainer() {
                 Transaction Analysis Notebook
               </h1>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <span>Auto-saved • {state.csvData.length} transactions loaded</span>
-            </div>
           </div>
           
           <div className="flex items-center space-x-2">

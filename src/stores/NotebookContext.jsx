@@ -72,6 +72,7 @@ const initialState = {
     }
   ],
   loading: false,
+  backendStats: null, // Stats from backend API
   selectedCellId: null,
   editingCellId: null,
   modals: {
@@ -92,6 +93,7 @@ const initialState = {
 // Action types
 const ActionTypes = {
   SET_CSV_DATA: 'SET_CSV_DATA',
+  SET_BACKEND_STATS: 'SET_BACKEND_STATS',
   SET_LOADING: 'SET_LOADING',
   SET_SELECTED_CELL: 'SET_SELECTED_CELL',
   SET_EDITING_CELL: 'SET_EDITING_CELL',
@@ -113,6 +115,9 @@ function notebookReducer(state, action) {
   switch (action.type) {
     case ActionTypes.SET_CSV_DATA:
       return { ...state, csvData: action.payload };
+    
+    case ActionTypes.SET_BACKEND_STATS:
+      return { ...state, backendStats: action.payload };
     
     case ActionTypes.SET_LOADING:
       return { ...state, loading: action.payload };

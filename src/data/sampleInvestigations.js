@@ -2,6 +2,169 @@
 
 export const sampleInvestigations = [
   {
+    id: "inv_latam_scalable_demo",
+    name: "🌎 LATAM Transaction Analysis - Scalable Backend Demo",
+    description: "Demonstrates the new scalable backend architecture with 770K+ Latin American transactions across 6 countries. Showcases real-time queries on large datasets without memory constraints.",
+    createdAt: "2025-09-05T11:00:00.000Z",
+    updatedAt: "2025-09-05T11:00:00.000Z",
+    version: "1.0",
+    cells: [
+      {
+        id: 1,
+        type: 'markdown',
+        content: `# 🌎 LATAM Transaction Analysis - Scalable Backend Demo
+
+## Dataset Overview
+**Total Transactions:** 772,852 transactions  
+**Date Range:** September 30 - October 1, 2024  
+**Countries:** Panama (PAN), Mexico (MEX), Brazil (BRA), Colombia (COL), Costa Rica (CRI), Guatemala (GTM)  
+**Total Volume:** $7.76 billion USD  
+**Backend Architecture:** PostgreSQL + Redis caching
+
+## New Backend Capabilities Demonstrated
+- ✅ **Large Dataset Processing**: 770K+ rows (vs previous 38K limit)
+- ✅ **Server-side SQL Execution**: Queries run on backend, not in browser
+- ✅ **Intelligent Caching**: Redis-powered result caching (1-hour TTL)
+- ✅ **Pagination**: Results paginated for optimal performance
+- ✅ **Real-time Analytics**: No more memory constraints in frontend
+
+## Investigation Focus Areas
+1. **Cross-Border Payment Flows** between 6 LATAM countries
+2. **Transaction Decline Patterns** (33K declined transactions to analyze)
+3. **High-Volume Merchant Analysis** (1,817 unique merchants)
+4. **User Behavior Patterns** across 2,628 unique users
+5. **Payment Type Distribution** analysis
+
+---
+*This investigation showcases the full power of the new scalable backend architecture*`,
+        collapsed: false,
+        executed: true,
+        executionTime: null
+      },
+      {
+        id: 2,
+        type: 'data',
+        title: '🌍 Cross-Border Transaction Overview (All 770K+ Transactions)',
+        query: `SELECT 
+  merchant_country,
+  COUNT(*) as transaction_count,
+  COUNT(DISTINCT user_id) as unique_users,
+  COUNT(DISTINCT merchant_id) as unique_merchants,
+  SUM(charged_amount) as total_volume,
+  AVG(charged_amount) as avg_amount,
+  SUM(CASE WHEN decline = 1 THEN 1 ELSE 0 END) as declined_count,
+  ROUND(SUM(CASE WHEN decline = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as decline_rate
+FROM transactions 
+GROUP BY merchant_country
+ORDER BY transaction_count DESC`,
+        columns: ['merchant_country', 'transaction_count', 'unique_users', 'unique_merchants', 'total_volume', 'avg_amount', 'declined_count', 'decline_rate'],
+        visibleColumns: ['merchant_country', 'transaction_count', 'unique_users', 'total_volume', 'decline_rate'],
+        filters: [],
+        collapsed: false,
+        executed: true,
+        queryResults: [],
+        executionTime: '0.18s'
+      },
+      {
+        id: 3,
+        type: 'data', 
+        title: '🏆 Top 50 Merchants by Transaction Volume',
+        query: `SELECT 
+  merchant_name,
+  merchant_country,
+  COUNT(*) as total_transactions,
+  COUNT(DISTINCT user_id) as unique_users,
+  SUM(charged_amount) as total_volume,
+  AVG(charged_amount) as avg_amount,
+  SUM(CASE WHEN decline = 1 THEN 1 ELSE 0 END) as declined_transactions,
+  ROUND(SUM(CASE WHEN decline = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as decline_rate,
+  MIN(txn_date_time) as first_transaction,
+  MAX(txn_date_time) as last_transaction
+FROM transactions 
+GROUP BY merchant_name, merchant_country
+ORDER BY total_transactions DESC`,
+        columns: ['merchant_name', 'merchant_country', 'total_transactions', 'unique_users', 'total_volume', 'avg_amount', 'declined_transactions', 'decline_rate', 'first_transaction', 'last_transaction'],
+        visibleColumns: ['merchant_name', 'merchant_country', 'total_transactions', 'total_volume', 'decline_rate'],
+        filters: [],
+        collapsed: false,
+        executed: true,
+        queryResults: [],
+        executionTime: '0.24s'
+      },
+      {
+        id: 4,
+        type: 'data',
+        title: '⚠️ Declined Transactions Analysis (33K+ Declined)',
+        query: `SELECT 
+  merchant_country,
+  payment_method,
+  decline_reason,
+  COUNT(*) as declined_count,
+  SUM(charged_amount) as declined_volume,
+  AVG(charged_amount) as avg_declined_amount,
+  COUNT(DISTINCT user_id) as affected_users,
+  COUNT(DISTINCT merchant_id) as affected_merchants
+FROM transactions 
+WHERE decline = 1
+GROUP BY merchant_country, payment_method, decline_reason
+ORDER BY declined_count DESC`,
+        columns: ['merchant_country', 'payment_method', 'decline_reason', 'declined_count', 'declined_volume', 'avg_declined_amount', 'affected_users', 'affected_merchants'],
+        visibleColumns: ['merchant_country', 'decline_reason', 'declined_count', 'declined_volume', 'affected_users'],
+        filters: [],
+        collapsed: false,
+        executed: true,
+        queryResults: [],
+        executionTime: '0.31s'
+      },
+      {
+        id: 5,
+        type: 'chart',
+        title: '📊 Transaction Volume Distribution by Country',
+        query: `SELECT 
+  merchant_country as country,
+  SUM(charged_amount) as volume,
+  COUNT(*) as count
+FROM transactions 
+GROUP BY merchant_country
+ORDER BY volume DESC`,
+        chartConfig: {
+          type: 'bar',
+          xAxis: 'country',
+          yAxis: 'volume',
+          colorBy: 'country',
+          title: 'Total Transaction Volume by Country ($USD)'
+        },
+        collapsed: false,
+        executed: true,
+        queryResults: [],
+        executionTime: '0.15s'
+      },
+      {
+        id: 6,
+        type: 'data',
+        title: '🔍 Recent Transactions - Live Data (Backend Scalability Demo)',
+        query: `SELECT 
+  txn_date_time,
+  user_id,
+  merchant_name,
+  merchant_country,
+  charged_amount,
+  payment_method,
+  outcome,
+  CASE WHEN decline = 1 THEN 'DECLINED' ELSE 'APPROVED' END as status
+FROM transactions 
+ORDER BY txn_date_time DESC`,
+        columns: ['txn_date_time', 'user_id', 'merchant_name', 'merchant_country', 'charged_amount', 'payment_method', 'outcome', 'status'],
+        visibleColumns: ['txn_date_time', 'merchant_name', 'merchant_country', 'charged_amount', 'status'],
+        filters: [],
+        collapsed: false,
+        executed: true,
+        queryResults: [],
+        executionTime: '0.12s'
+      }
+    ]
+  },
+  {
     id: "inv_advanced_fraud_ml_001",
     name: "Advanced Fraud Detection with ML Features",
     description: "Comprehensive fraud investigation using computed states, risk scoring, behavioral analysis, and predictive modeling to identify sophisticated fraud patterns.",
@@ -102,7 +265,7 @@ FROM transactions
 GROUP BY user_id
 HAVING total_transactions > 10
 ORDER BY fraud_rate DESC, total_volume DESC
-LIMIT 20`,
+LIMIT 100`,
         columns: ['user_id', 'total_transactions', 'total_volume', 'unique_merchants', 'countries_used', 'fraud_transactions', 'declined_transactions', 'fraud_rate', 'last_transaction'],
         visibleColumns: ['user_id', 'total_transactions', 'total_volume', 'unique_merchants', 'countries_used', 'fraud_rate'],
         filters: [],
@@ -456,7 +619,7 @@ GROUP BY user_id
 HAVING country_diversity > 2 
    AND total_transactions > 10
 ORDER BY country_diversity DESC, cross_border_volume DESC
-LIMIT 25`,
+LIMIT 100`,
         columns: ['user_id', 'country_diversity', 'cross_border_volume', 'total_transactions', 'unique_merchants', 'fraud_rate', 'high_value_txns', 'countries_used'],
         visibleColumns: ['user_id', 'country_diversity', 'cross_border_volume', 'total_transactions', 'fraud_rate', 'countries_used'],
         filters: [],
@@ -741,7 +904,7 @@ FROM transactions
 GROUP BY merchant_id
 HAVING total_transactions > 20
 ORDER BY fraud_rate DESC, success_rate ASC
-LIMIT 25`,
+LIMIT 100`,
         columns: ['merchant_name', 'merchant_country', 'mcc', 'success_rate', 'user_diversity', 'daily_avg_volume', 'total_transactions', 'total_volume', 'fraud_count', 'decline_count', 'fraud_rate', 'active_days'],
         visibleColumns: ['merchant_name', 'merchant_country', 'mcc', 'success_rate', 'fraud_rate', 'user_diversity', 'total_volume'],
         filters: [],

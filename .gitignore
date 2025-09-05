@@ -1,0 +1,5 @@
+backend/node_modules/
+
+# Large dataset files
+public/transactions_latam.csv
+*.csv
