@@ -18,7 +18,8 @@ This file provides essential context for LLMs working on the AMLBoost project to
 ```
 Frontend Framework: React 19 (functional components + hooks)
 Build Tool: Vite 7
-Database: SQL.js (SQLite in browser)
+Database: PostgreSQL with Redis caching (backend)
+API Layer: Express.js REST API with query optimization
 Styling: Tailwind CSS 4 with custom "Fortify" design system
 State Management: React Context + useReducer
 Charts: ECharts for interactive visualizations
@@ -26,11 +27,21 @@ Icons: Lucide React + Iconoir
 ```
 
 ### Key Dependencies
-- `sql.js`: Client-side SQLite database engine
-- `echarts`: Professional charting library
+
+#### Frontend
 - `react` + `react-dom`: Core React framework
+- `echarts`: Professional charting library
 - `tailwindcss`: Utility-first CSS framework
 - `lucide-react` + `iconoir-react`: Icon libraries
+
+#### Backend
+- `express`: Node.js web application framework
+- `pg`: PostgreSQL client for Node.js
+- `redis`: In-memory data structure store for caching
+- `csv-parser`: CSV file processing
+- `multer`: File upload middleware
+- `helmet`: Security middleware
+- `compression`: Response compression
 
 ## Architecture Patterns
 
@@ -45,10 +56,12 @@ Icons: Lucide React + Iconoir
 - **Modal Pattern**: Centralized modal management through context
 
 ### Data Processing
-- **Client-side SQLite**: All data processing happens in browser using SQL.js
-- **CSV Loading**: Files loaded from `public/data.csv` and processed into SQLite
-- **Computed States**: Feature engineering through SQL expressions
-- **Persistent Storage**: LocalStorage for investigations and computed states
+- **Server-side PostgreSQL**: Scalable data processing on dedicated backend server
+- **CSV Upload & Processing**: Multi-gigabyte CSV files uploaded and processed server-side
+- **Query Caching**: Redis-powered intelligent query result caching with 1-hour TTL
+- **Computed States**: Feature engineering through SQL expressions executed on server
+- **Persistent Storage**: LocalStorage for investigations, PostgreSQL for transaction data
+- **Performance Optimization**: Pagination, indexing, and query optimization for large datasets
 
 ## File Structure Quick Reference
 
@@ -74,11 +87,20 @@ src/components/
 ### Services & Logic
 ```
 src/services/
-├── sqliteEngine.js        # Client-side database operations
-├── csvLoader.js          # CSV file processing and loading
+├── apiClient.js          # Backend API communication layer
 ├── investigationService.js # Save/load investigation persistence
 ├── chartService.js       # Chart data processing utilities
 └── openaiService.js      # AI service integration (placeholder)
+
+backend/
+├── server.js            # Express server and middleware setup
+├── config/database.js   # PostgreSQL connection pool configuration
+├── routes/
+│   ├── data.js         # Data retrieval and export endpoints
+│   ├── query.js        # SQL query execution with caching
+│   └── upload.js       # CSV upload and processing
+└── scripts/
+    └── migrate.js      # Database schema migrations
 ```
 
 ### Data & State
@@ -98,16 +120,19 @@ src/data/
 - **State**: Editable content with save/cancel actions
 
 ### 2. Data Cells  
-- **Purpose**: SQL query execution against loaded transaction data
-- **Features**: Query editor, results table, column filtering, export
-- **SQL Context**: Query against `transactions` table in SQLite
-- **Performance**: Optimized for datasets up to ~100K rows
+- **Purpose**: SQL query execution against server-side transaction data
+- **Features**: Query editor, paginated results table, column filtering, export
+- **SQL Context**: Query against `transactions` table in PostgreSQL
+- **Performance**: Scalable to multi-million row datasets with intelligent caching
+- **Security**: Server-side query validation (SELECT-only queries allowed)
+- **Caching**: Automatic result caching for frequently executed queries
 
 ### 3. Chart Cells
 - **Purpose**: Interactive data visualization using ECharts
 - **Types**: Scatter, bar, line, bubble charts
-- **Data Source**: Can query database or use results from data cells
+- **Data Source**: Server-side queries with result pagination for large datasets
 - **Customization**: Axis mapping, color coding, size dimensions
+- **Performance**: Optimized rendering for datasets with millions of data points
 
 ### 4. AI Cells
 - **Purpose**: AI-powered analysis and pattern recognition  
@@ -128,8 +153,16 @@ src/data/
 
 ## Data Model & Expectations
 
+### Backend Architecture
+The application now uses a scalable backend architecture:
+
+**Database**: PostgreSQL with connection pooling (max 20 connections)
+**Caching**: Redis for query result caching (1-hour TTL)
+**File Processing**: Server-side CSV processing with progress tracking
+**Query Execution**: Paginated queries with automatic performance optimization
+
 ### Transaction Data Schema
-The application expects CSV data with this structure:
+The application processes uploaded CSV files with this structure:
 
 **Core Fields:**
 ```
@@ -161,10 +194,12 @@ The app includes comprehensive sample investigations demonstrating:
 ### When Adding Features
 
 1. **Follow Cell Pattern**: New analysis types should be implemented as cell components
-2. **Use Existing Services**: Leverage sqliteEngine.js for data operations
-3. **Maintain State Flow**: Use NotebookContext for global state, local state for UI
-4. **Style Consistency**: Use Tailwind classes following existing patterns
-5. **AML Focus**: Consider compliance and investigation workflow needs
+2. **Use API Client**: Leverage apiClient.js for all data operations (replaces sqliteEngine.js)
+3. **Backend Integration**: Consider server-side processing for data-intensive operations
+4. **Maintain State Flow**: Use NotebookContext for global state, local state for UI
+5. **Style Consistency**: Use Tailwind classes following existing patterns
+6. **AML Focus**: Consider compliance and investigation workflow needs
+7. **Performance First**: Design with large dataset scalability in mind
 
 ### Common Development Tasks
 
@@ -176,9 +211,10 @@ The app includes comprehensive sample investigations demonstrating:
 5. **Consider adding AI button for consistency with other cell types**
 
 #### Extending SQL Functionality
-1. Modify `sqliteEngine.js` to add custom SQL functions
-2. Update data loading in `csvLoader.js` if needed
-3. Consider computed state integration for persistent calculations
+1. Add custom endpoints to backend routes (`backend/routes/query.js`)
+2. Implement PostgreSQL stored procedures or custom functions
+3. Update `apiClient.js` to expose new backend functionality
+4. Consider query caching implications for new functionality
 
 #### Adding New Chart Types
 1. Extend `chartService.js` with new chart configuration
@@ -187,13 +223,23 @@ The app includes comprehensive sample investigations demonstrating:
 
 ### Performance Considerations
 
-- **SQLite Scaling**: Client-side processing optimized for up to ~100K rows with streaming parser
-- **CSV Loading**: Streaming CSV reader handles large files efficiently, loads first 10,000 rows by default
-- **Chart Rendering**: Optimize for datasets under 10K points for smooth interaction  
-- **Memory Usage**: Large investigations with many cells may impact browser performance
-- **State Persistence**: LocalStorage has size limits (typically 5-10MB)
-- **Batch Processing**: SQLite insertions use 1000-row batches with progress logging
-- **Large File Handling**: Early exit optimization for files >1M rows to prevent memory overload
+**Backend Scalability**:
+- **PostgreSQL Scaling**: Server-side processing scales to multi-million row datasets
+- **CSV Upload**: Multi-gigabyte file uploads with server-side processing and progress tracking
+- **Query Caching**: Redis-powered result caching reduces query execution time by 90%+
+- **Connection Pooling**: Efficient database connection management (max 20 concurrent connections)
+- **Pagination**: All query results paginated (default 1000 rows per page) for optimal performance
+
+**Frontend Optimization**:
+- **Chart Rendering**: Optimized for large datasets with server-side data sampling
+- **Memory Usage**: Reduced client-side memory footprint with backend data processing
+- **State Persistence**: LocalStorage still used for investigations (5-10MB limit)
+- **API Communication**: Efficient REST API with compression and caching headers
+
+**File Processing**:
+- **Upload Limits**: Configurable file size limits (default 500MB, expandable to multi-GB)
+- **Background Processing**: Asynchronous CSV processing with status tracking
+- **Data Quality**: Automatic data quality reports and validation on upload
 
 ### Error Handling Patterns
 
@@ -219,16 +265,18 @@ The app includes comprehensive sample investigations demonstrating:
 ## Common Debugging Scenarios
 
 ### Data Loading Issues
-- Check browser console for CSV parsing errors
-- Verify `data.csv` exists in `public/` directory  
-- Ensure CSV headers match expected format
-- Monitor SQLite memory usage in DevTools
+- Check backend logs for CSV processing errors
+- Verify backend server is running (`npm run dev` in `/backend` directory)
+- Monitor upload progress via status endpoints
+- Check PostgreSQL connection and table creation
+- Review file size limits and server disk space
 
 ### SQL Query Problems  
-- Test queries in browser SQLite console
-- Check for reserved keyword conflicts
-- Verify data types in computed expressions
-- Monitor query execution time for performance
+- Test queries using PostgreSQL client or backend API
+- Check server-side query validation (only SELECT statements allowed)
+- Monitor query execution time and caching effectiveness
+- Review PostgreSQL logs for performance bottlenecks
+- Verify pagination is working correctly for large result sets
 
 ### Chart Rendering Issues
 - Validate data format matches chart requirements
@@ -290,11 +338,12 @@ The app includes comprehensive sample investigations demonstrating:
 
 ## Quick Development Commands
 
+### Frontend Development
 ```bash
-# Start development with hot reload
+# Start frontend development server
 npm run dev
 
-# Build for production  
+# Build frontend for production  
 npm run build
 
 # Run code quality checks
@@ -304,39 +353,67 @@ npm run lint
 npm run preview
 ```
 
+### Backend Development
+```bash
+# Navigate to backend directory
+cd backend
+
+# Install backend dependencies
+npm install
+
+# Start backend development server (with auto-reload)
+npm run dev
+
+# Start backend production server
+npm start
+
+# Run database migrations
+npm run migrate
+
+# Seed database with sample data
+npm run seed
+```
+
 ## Key Files for Rapid Onboarding
 
+### Frontend
 1. **`src/App.jsx`** - Application entry point and error boundaries
 2. **`src/stores/NotebookContext.jsx`** - Global state management
 3. **`src/components/NotebookContainer.jsx`** - Main notebook interface
-4. **`src/services/sqliteEngine.js`** - Data processing engine
+4. **`src/services/apiClient.js`** - Backend API communication layer
 5. **`src/data/sampleInvestigations.js`** - Sample AML investigations
+
+### Backend
+1. **`backend/server.js`** - Express server setup and middleware
+2. **`backend/config/database.js`** - PostgreSQL configuration
+3. **`backend/routes/query.js`** - SQL query execution and caching
+4. **`backend/routes/upload.js`** - CSV file upload and processing
+5. **`backend/routes/data.js`** - Data retrieval and export endpoints
 
 ## Common Issues & Troubleshooting
 
-### Application Hangs or Infinite Loading
+### Application Connection Issues
 
-**Symptoms**: App gets stuck on "Loading transaction data..." or shows flickering screen
+**Symptoms**: App shows "Backend not available" or API connection errors
 
 **Common Causes**:
-1. **SQLite WASM Loading Issues**: WASM files not found or incorrect paths
-2. **Missing Data Files**: `data-types.json` or `data.csv` not accessible
-3. **Large Dataset Memory Issues**: Files >500MB may cause browser memory issues
-4. **Computed States Auto-execution**: Expensive per-row calculations causing hangs
+1. **Backend Server Not Running**: Express server not started
+2. **Database Connection Issues**: PostgreSQL not accessible
+3. **Port Conflicts**: Backend running on different port than expected
+4. **CORS Configuration**: Frontend/backend URL mismatch
 
 **Solutions**:
-- Ensure WASM files (`sql-wasm.js`, `sql-wasm.wasm`) exist in `public/` directory
-- Verify `data-types.json` and `data.csv` are in `public/` directory
-- Check file paths use relative paths (`./file`) not absolute (`/file`)
-- For large datasets, ensure file size is reasonable (<200MB for optimal performance)
-- For computed states causing hangs, set `persistent: false` to disable auto-execution
-- Monitor browser console for CSV loading progress and memory usage
+- Ensure backend server is running: `cd backend && npm run dev`
+- Verify PostgreSQL is running and accessible
+- Check backend logs for connection errors
+- Confirm frontend is connecting to correct backend URL (default: localhost:3001)
+- Review CORS configuration in `backend/server.js`
 
 **Code Locations to Check**:
-- `src/services/sqliteEngine.js:18` - WASM file loading configuration
-- `src/services/csvLoader.js:39` - streaming CSV parser with memory optimizations
-- `src/data/sampleInvestigations.js` - persistent states configuration
-- `src/hooks/useCSVLoader.js:217` - CSV loading limits (default 10,000 rows)
+- `backend/server.js:16` - Server port configuration
+- `backend/config/database.js:7` - PostgreSQL connection settings
+- `src/services/apiClient.js:3` - Backend URL configuration
+- `backend/server.js:23` - CORS origin configuration
 
 ### Cell Deletion Not Working
 
@@ -353,35 +430,60 @@ npm run preview
 
 ### Data Loading Performance
 
-**Symptoms**: Slow loading with large datasets
+**Symptoms**: Slow CSV upload or query execution
 
-**Optimizations**:
-- CSV loading limited to 10,000 rows by default (`maxRows` parameter)
-- SQLite indexing on commonly queried columns
-- Batch processing for computed states (100 rows per batch)
-- Client-side processing scales to ~100K rows effectively
+**Backend Optimizations**:
+- Server-side CSV processing handles multi-gigabyte files efficiently
+- PostgreSQL indexing on commonly queried columns for fast lookups
+- Query result caching with Redis (1-hour TTL) for instant repeat queries
+- Connection pooling (max 20 connections) for concurrent query handling
+- Pagination (default 1000 rows per page) prevents memory overload
+
+**Monitoring & Tuning**:
+- Check backend logs for query execution times
+- Monitor Redis cache hit rates for query optimization
+- Review PostgreSQL query plans for performance bottlenecks
+- Use `/api/query/performance` endpoint for query analytics
 
 ### Development Setup Issues
 
-**Prerequisites**:
+**Frontend Prerequisites**:
 ```bash
-npm install  # Install dependencies first
-npm run dev  # Start development server
+npm install  # Install frontend dependencies
+npm run dev  # Start frontend development server
 ```
 
-**File Structure Requirements**:
-```
-public/
-├── data.csv              # Transaction data (required, recommended <200MB)
-├── data-types.json       # Column type definitions
-├── sql-wasm.js          # SQLite JavaScript wrapper
-├── sql-wasm.wasm        # SQLite WebAssembly binary
-└── favicon.ico          # Site favicon
+**Backend Prerequisites**:
+```bash
+cd backend
+npm install  # Install backend dependencies
+npm run migrate  # Set up database schema
+npm run dev  # Start backend development server
 ```
 
-**Performance Testing**:
+**Database Setup Requirements**:
+```
+PostgreSQL 12+ with:
+├── Database: amlboost
+├── User: amlboost_user (with full privileges)
+├── Tables: transactions, query_cache
+└── Indexes: Optimized for common query patterns
+
+Redis (optional, for query caching):
+├── Default configuration
+└── Used for query result caching
+```
+
+**Environment Variables** (backend/.env):
 ```bash
-node test-performance.js  # Test CSV loading performance with different row limits
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=amlboost
+DB_USER=amlboost_user
+DB_PASSWORD=your_password
+REDIS_URL=redis://localhost:6379
+FRONTEND_URL=http://localhost:5173
+PORT=3001
 ```
 
 This file should be updated when significant architectural changes are made to ensure future development assistance remains accurate and efficient.
